@@ -37,6 +37,12 @@ export async function GET(request: NextRequest) {
 
     const { page, limit, search, status, sortBy, sortOrder } = parsed.data;
 
+    // Optional controlled test delay for demonstrating stale-response protection
+    const testDelay = Number(searchParams.get("testDelay"));
+    if (!isNaN(testDelay) && testDelay > 0 && testDelay <= 5000) {
+      await new Promise((resolve) => setTimeout(resolve, testDelay));
+    }
+
     const where: Prisma.OrderWhereInput = {};
 
     if (status) {
