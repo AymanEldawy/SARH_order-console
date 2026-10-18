@@ -3,7 +3,22 @@ import assert from "node:assert/strict";
 import { NextRequest } from "next/server";
 import { GET } from "../src/app/api/orders/route";
 import { prisma } from "../src/lib/prisma";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus, Role } from "@prisma/client";
+import { signToken } from "../src/lib/auth";
+
+const testToken = signToken({
+  id: "test-agent-id",
+  email: "agent@sarh.dev",
+  role: Role.AGENT,
+});
+
+function createRequest(url: string) {
+  return new NextRequest(new URL(url, "http://localhost:3000"), {
+    headers: {
+      authorization: `Bearer ${testToken}`,
+    },
+  });
+}
 
 describe("Phase 2: Orders API, Search, Filters, Sorting & Pagination", () => {
   before(async () => {
@@ -13,10 +28,6 @@ describe("Phase 2: Orders API, Search, Filters, Sorting & Pagination", () => {
   after(async () => {
     await prisma.$disconnect();
   });
-
-  function createRequest(url: string) {
-    return new NextRequest(new URL(url, "http://localhost:3000"));
-  }
 
   it("should return default paginated list (page 1, limit 20) with pagination metadata", async () => {
     const req = createRequest("/api/orders");

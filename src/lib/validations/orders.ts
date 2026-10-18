@@ -38,7 +38,47 @@ export const ordersQuerySchema = z.object({
     .default("desc"),
 });
 
+export const createOrderItemSchema = z.object({
+  itemName: z
+    .string({ required_error: "Item name is required" })
+    .trim()
+    .min(1, "Item name cannot be empty")
+    .max(100, "Item name too long"),
+  quantity: z
+    .coerce
+    .number({ invalid_type_error: "Quantity must be a number" })
+    .int("Quantity must be an integer")
+    .min(1, "Quantity must be at least 1")
+    .max(100, "Quantity cannot exceed 100"),
+  unitPrice: z
+    .coerce
+    .number({ invalid_type_error: "Unit price must be a number" })
+    .positive("Unit price must be positive")
+    .max(100000, "Unit price too large"),
+});
+
+export const createOrderSchema = z.object({
+  customerName: z
+    .string({ required_error: "Customer name is required" })
+    .trim()
+    .min(2, "Customer name must be at least 2 characters")
+    .max(100, "Customer name too long"),
+  customerEmail: z
+    .string({ required_error: "Customer email is required" })
+    .trim()
+    .toLowerCase()
+    .email("Invalid customer email address"),
+  status: z.nativeEnum(OrderStatus).default(OrderStatus.PENDING),
+  items: z
+    .array(createOrderItemSchema)
+    .min(1, "At least 1 line item is required")
+    .max(5, "Maximum 5 line items allowed"),
+  idempotencyKey: z.string().trim().min(1).max(128).optional(),
+});
+
 export type OrdersQueryInput = z.infer<typeof ordersQuerySchema>;
+export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type CreateOrderItemInput = z.infer<typeof createOrderItemSchema>;
 
 export interface OrderListItem {
   id: string;
