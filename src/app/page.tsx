@@ -1,18 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LoginForm } from "@/components/LoginForm";
+import { LoginForm } from "@/features/auth/components/LoginForm";
+import type { AuthenticatedUser } from "@/features/auth/types/auth.types";
 import { OrdersTable } from "@/components/OrdersTable";
-import { CreateOrderModal } from "@/components/CreateOrderModal";
-
-interface AuthUserState {
-  id: string;
-  email: string;
-  role: "ADMIN" | "AGENT";
-}
+import { CreateOrderModal } from "@/features/orders/components/CreateOrderModal";
 
 export default function HomePage() {
-  const [user, setUser] = useState<AuthUserState | null>(null);
+  const [user, setUser] = useState<AuthenticatedUser | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
