@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin, requireAuth } from "@/features/auth/lib/auth.server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireAdmin } from "@/features/auth/lib/auth.server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const authResult = await requireAuth(request);
@@ -20,10 +20,7 @@ export async function GET(
     });
 
     if (!order) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     return NextResponse.json(
@@ -43,20 +40,20 @@ export async function GET(
           })),
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("GET /api/orders/[id] error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // Enforce server-side role check: only ADMIN can perform destructive delete
@@ -72,10 +69,7 @@ export async function DELETE(
     });
 
     if (!existingOrder) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     await prisma.order.delete({
@@ -87,7 +81,7 @@ export async function DELETE(
     console.error("DELETE /api/orders/[id] error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,6 +1,6 @@
-import { describe, it } from "node:test";
-import assert from "node:assert/strict";
 import { OrderStatus } from "@prisma/client";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 
 describe("Phase 4: Stale-Response Protection & Rapid-Filter Correctness Logic", () => {
   it("should prove sequence counter and AbortController prevent slower early request from overwriting newer latest state", async () => {

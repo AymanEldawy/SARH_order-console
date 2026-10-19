@@ -1,15 +1,15 @@
-import { describe, it, before, after } from "node:test";
-import assert from "node:assert/strict";
-import { NextRequest } from "next/server";
-import { POST as loginHandler } from "../src/app/api/auth/login/route";
-import { GET as meHandler } from "../src/app/api/auth/me/route";
-import { POST as logoutHandler } from "../src/app/api/auth/logout/route";
-import { POST as createOrderHandler } from "../src/app/api/orders/route";
-import { DELETE as deleteOrderHandler } from "../src/app/api/orders/[id]/route";
-import { prisma } from "../src/lib/prisma";
-import { signToken, verifyToken } from "../src/features/auth/lib/auth.server";
 import { OrderStatus, Role } from "@prisma/client";
 import crypto from "crypto";
+import { NextRequest } from "next/server";
+import assert from "node:assert/strict";
+import { after, before, describe, it } from "node:test";
+import { POST as loginHandler } from "../src/app/api/auth/login/route";
+import { POST as logoutHandler } from "../src/app/api/auth/logout/route";
+import { GET as meHandler } from "../src/app/api/auth/me/route";
+import { DELETE as deleteOrderHandler } from "../src/app/api/orders/[id]/route";
+import { POST as createOrderHandler } from "../src/app/api/orders/route";
+import { signToken, verifyToken } from "../src/features/auth/lib/auth.server";
+import { prisma } from "../src/lib/prisma";
 
 describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation", () => {
   let adminToken: string;
@@ -35,7 +35,11 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     await prisma.$disconnect();
   });
 
-  function createJsonRequest(url: string, body: any, headers: Record<string, string> = {}) {
+  function createJsonRequest(
+    url: string,
+    body: any,
+    headers: Record<string, string> = {},
+  ) {
     return new NextRequest(new URL(url, "http://localhost:3000"), {
       method: "POST",
       headers: {
@@ -73,7 +77,11 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     assert.ok(body.token, "JWT token must be returned");
     assert.strictEqual(body.user.email, "admin@sarh.dev");
     assert.strictEqual(body.user.role, Role.ADMIN);
-    assert.strictEqual(body.user.passwordHash, undefined, "passwordHash must never be returned");
+    assert.strictEqual(
+      body.user.passwordHash,
+      undefined,
+      "passwordHash must never be returned",
+    );
 
     // Verify HttpOnly cookie header
     const cookieHeader = res.headers.get("set-cookie");
@@ -91,26 +99,41 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     // Tampered token (modified payload without valid signature) must fail
     const parts = adminToken.split(".");
     const tamperedPayload = Buffer.from(
-      JSON.stringify({ sub: "attacker-id", email: "hacker@sarh.dev", role: "ADMIN" })
+      JSON.stringify({
+        sub: "attacker-id",
+        email: "hacker@sarh.dev",
+        role: "ADMIN",
+      }),
     ).toString("base64url");
     const forgedToken = `${parts[0]}.${tamperedPayload}.${parts[2]}`;
 
     const forgedVerification = verifyToken(forgedToken);
-    assert.strictEqual(forgedVerification, null, "Forged token signature verification must fail");
+    assert.strictEqual(
+      forgedVerification,
+      null,
+      "Forged token signature verification must fail",
+    );
   });
 
   it("should reject query string tokens and accept only Bearer header or cookie", async () => {
     // Attempting query string token (?token=...)
     const queryReq = new NextRequest(
-      new URL(`/api/auth/me?token=${agentToken}`, "http://localhost:3000")
+      new URL(`/api/auth/me?token=${agentToken}`, "http://localhost:3000"),
     );
     const queryRes = await meHandler(queryReq);
-    assert.strictEqual(queryRes.status, 401, "Query string token must be rejected");
+    assert.strictEqual(
+      queryRes.status,
+      401,
+      "Query string token must be rejected",
+    );
 
     // Header token passes
-    const headerReq = new NextRequest(new URL("/api/auth/me", "http://localhost:3000"), {
-      headers: { authorization: `Bearer ${agentToken}` },
-    });
+    const headerReq = new NextRequest(
+      new URL("/api/auth/me", "http://localhost:3000"),
+      {
+        headers: { authorization: `Bearer ${agentToken}` },
+      },
+    );
     const headerRes = await meHandler(headerReq);
     assert.strictEqual(headerRes.status, 200);
     const body = await headerRes.json();
@@ -148,7 +171,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     // 1. Unauthenticated request -> 401
     const unauthReq = new NextRequest(
       new URL(`/api/orders/${tempOrder.id}`, "http://localhost:3000"),
-      { method: "DELETE" }
+      { method: "DELETE" },
     );
     const unauthRes = await deleteOrderHandler(unauthReq, { params });
     assert.strictEqual(unauthRes.status, 401);
@@ -159,7 +182,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
       {
         method: "DELETE",
         headers: { authorization: `Bearer ${agentToken}` },
-      }
+      },
     );
     const agentRes = await deleteOrderHandler(agentReq, { params });
     assert.strictEqual(agentRes.status, 403);
@@ -172,13 +195,15 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
       {
         method: "DELETE",
         headers: { authorization: `Bearer ${adminToken}` },
-      }
+      },
     );
     const adminRes = await deleteOrderHandler(adminReq, { params });
     assert.strictEqual(adminRes.status, 200);
 
     // Verify order was deleted from PostgreSQL
-    const checkDeleted = await prisma.order.findUnique({ where: { id: tempOrder.id } });
+    const checkDeleted = await prisma.order.findUnique({
+      where: { id: tempOrder.id },
+    });
     assert.strictEqual(checkDeleted, null);
   });
 
@@ -194,7 +219,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
         customerEmail: "nokey@example.com",
         items: [{ itemName: "Item", quantity: 1, unitPrice: 20 }],
       },
-      { authorization: `Bearer ${agentToken}` }
+      { authorization: `Bearer ${agentToken}` },
     );
     const res = await createOrderHandler(req);
     assert.strictEqual(res.status, 400);
@@ -213,7 +238,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
       {
         authorization: `Bearer ${agentToken}`,
         "idempotency-key": `key-invalid-${Date.now()}`,
-      }
+      },
     );
     const res = await createOrderHandler(req);
     assert.strictEqual(res.status, 400);
@@ -238,7 +263,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
       {
         authorization: `Bearer ${agentToken}`,
         "idempotency-key": key,
-      }
+      },
     );
 
     const res = await createOrderHandler(req);
@@ -249,12 +274,14 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     assert.strictEqual(
       body.data.status,
       OrderStatus.PENDING,
-      "Server must always assign PENDING status to new orders, ignoring client-supplied status"
+      "Server must always assign PENDING status to new orders, ignoring client-supplied status",
     );
 
     // Cleanup
     await prisma.idempotencyRecord.deleteMany({ where: { key } });
-    await prisma.order.deleteMany({ where: { customerEmail: "status.bypass@example.com" } });
+    await prisma.order.deleteMany({
+      where: { customerEmail: "status.bypass@example.com" },
+    });
   });
 
   it("should reject reusing the same idempotency key with a DIFFERENT payload (422 Conflict)", async () => {
@@ -270,7 +297,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
       {
         authorization: `Bearer ${agentToken}`,
         "idempotency-key": sharedKey,
-      }
+      },
     );
 
     const originalRes = await createOrderHandler(originalReq);
@@ -288,7 +315,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
       {
         authorization: `Bearer ${agentToken}`,
         "idempotency-key": sharedKey,
-      }
+      },
     );
 
     const differentRes = await createOrderHandler(differentReq);
@@ -331,7 +358,9 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     });
 
     // Fire both requests simultaneously using Promise.all
-    console.log(`\n>>> Firing 2 parallel requests with idempotency key: ${parallelKey}...`);
+    console.log(
+      `\n>>> Firing 2 parallel requests with idempotency key: ${parallelKey}...`,
+    );
     const [res1, res2] = await Promise.all([
       createOrderHandler(req1),
       createOrderHandler(req2),
@@ -345,7 +374,11 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     const body2 = await res2.json();
 
     // Both callers must receive the exact same Order ID
-    assert.strictEqual(body1.data.id, body2.data.id, "Both responses must return identical order IDs");
+    assert.strictEqual(
+      body1.data.id,
+      body2.data.id,
+      "Both responses must return identical order IDs",
+    );
     assert.strictEqual(body1.data.totalAmount, 175.0);
     assert.strictEqual(body2.data.totalAmount, 175.0);
 
@@ -366,12 +399,12 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     assert.strictEqual(
       orderCountInDb,
       1,
-      `FATAL: Expected exactly 1 order in PostgreSQL, but found ${orderCountInDb}`
+      `FATAL: Expected exactly 1 order in PostgreSQL, but found ${orderCountInDb}`,
     );
     assert.strictEqual(
       idempotencyCountInDb,
       1,
-      `FATAL: Expected exactly 1 idempotency record in PostgreSQL, but found ${idempotencyCountInDb}`
+      `FATAL: Expected exactly 1 idempotency record in PostgreSQL, but found ${idempotencyCountInDb}`,
     );
 
     // Clean up test fixture

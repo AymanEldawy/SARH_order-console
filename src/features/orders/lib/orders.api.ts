@@ -89,10 +89,16 @@ export async function getOrders(
   const response = await fetch(`/api/orders?${params}`, { signal });
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new OrdersApiError(getApiErrorMessage(body, `HTTP error ${response.status}`), response.status);
+    throw new OrdersApiError(
+      getApiErrorMessage(body, `HTTP error ${response.status}`),
+      response.status,
+    );
   }
   if (!isOrdersApiResponse(body)) {
-    throw new OrdersApiError("The orders API returned an unexpected response.", response.status);
+    throw new OrdersApiError(
+      "The orders API returned an unexpected response.",
+      response.status,
+    );
   }
   return body;
 }
@@ -106,17 +112,30 @@ export async function deleteOrder(orderId: string): Promise<void> {
   }
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new OrdersApiError(getApiErrorMessage(body, "Failed to delete order"), response.status);
+    throw new OrdersApiError(
+      getApiErrorMessage(body, "Failed to delete order"),
+      response.status,
+    );
   }
 }
 
 function isOrdersApiResponse(value: unknown): value is OrdersApiResponse {
-  return typeof value === "object" && value !== null && "data" in value && Array.isArray(value.data) &&
-    "pagination" in value && typeof value.pagination === "object" && value.pagination !== null;
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "data" in value &&
+    Array.isArray(value.data) &&
+    "pagination" in value &&
+    typeof value.pagination === "object" &&
+    value.pagination !== null
+  );
 }
 
 function getApiErrorMessage(body: unknown, fallback: string): string {
-  return typeof body === "object" && body !== null && "error" in body && typeof body.error === "string"
+  return typeof body === "object" &&
+    body !== null &&
+    "error" in body &&
+    typeof body.error === "string"
     ? body.error
     : fallback;
 }

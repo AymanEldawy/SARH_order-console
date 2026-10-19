@@ -1,9 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { ordersQuerySchema, createOrderSchema } from "@/features/orders/lib/orders.validation";
 import { requireAuth } from "@/features/auth/lib/auth.server";
-import { Prisma, OrderStatus } from "@prisma/client";
+import {
+  createOrderSchema,
+  ordersQuerySchema,
+} from "@/features/orders/lib/orders.validation";
+import { prisma } from "@/lib/prisma";
+import { OrderStatus, Prisma } from "@prisma/client";
 import crypto from "crypto";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,7 +34,7 @@ export async function GET(request: NextRequest) {
           error: "Invalid query parameters",
           details: parsed.error.flatten().fieldErrors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -115,13 +118,13 @@ export async function GET(request: NextRequest) {
         headers: {
           "Cache-Control": "private, no-cache, no-store, must-revalidate",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("GET /api/orders error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -139,12 +142,14 @@ export async function POST(request: NextRequest) {
     // Idempotency key from header preferred, fallback to body
     const idempotencyKey =
       request.headers.get("idempotency-key")?.trim() ||
-      (typeof body?.idempotencyKey === "string" ? body.idempotencyKey.trim() : null);
+      (typeof body?.idempotencyKey === "string"
+        ? body.idempotencyKey.trim()
+        : null);
 
     if (!idempotencyKey) {
       return NextResponse.json(
         { error: "Missing required 'Idempotency-Key' header or property" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -156,7 +161,7 @@ export async function POST(request: NextRequest) {
           error: "Invalid order data",
           details: parsed.error.flatten().fieldErrors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -189,8 +194,11 @@ export async function POST(request: NextRequest) {
       // If the key exists but the payload differs: reject as conflict
       if (existingRecord.requestHash !== requestHash) {
         return NextResponse.json(
-          { error: "Idempotency key already used with a different request payload" },
-          { status: 422 }
+          {
+            error:
+              "Idempotency key already used with a different request payload",
+          },
+          { status: 422 },
         );
       }
 
@@ -204,7 +212,7 @@ export async function POST(request: NextRequest) {
     // 5. Calculate order total amount server-side (prevent tampering)
     const computedTotal = normalizedPayload.items.reduce(
       (sum, item) => sum + item.quantity * item.unitPrice,
-      0
+      0,
     );
     const totalAmountDecimal = new Prisma.Decimal(computedTotal.toFixed(2));
 
@@ -283,8 +291,11 @@ export async function POST(request: NextRequest) {
         if (winningRecord) {
           if (winningRecord.requestHash !== requestHash) {
             return NextResponse.json(
-              { error: "Idempotency key already used with a different request payload" },
-              { status: 422 }
+              {
+                error:
+                  "Idempotency key already used with a different request payload",
+              },
+              { status: 422 },
             );
           }
 
@@ -298,14 +309,14 @@ export async function POST(request: NextRequest) {
       console.error("POST /api/orders transaction error:", txError);
       return NextResponse.json(
         { error: "Failed to process order creation" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
     console.error("POST /api/orders error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

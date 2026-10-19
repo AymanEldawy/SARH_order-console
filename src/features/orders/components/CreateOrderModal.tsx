@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useCreateOrder } from "../hooks/useCreateOrder";
 import type {
   CreateOrderFormValues,
@@ -43,15 +43,18 @@ export function CreateOrderModal({
     startNewOrder,
     submit,
   } = useCreateOrder();
+  const hasHandledSuccessRef = useRef(false);
 
   useEffect(() => {
     if (!isOpen) return;
+    hasHandledSuccessRef.current = false;
     setForm({ customerName: "", customerEmail: "", items: initialItems() });
     startNewOrder();
   }, [isOpen, startNewOrder]);
 
   useEffect(() => {
-    if (!createdOrder) return;
+    if (!createdOrder || hasHandledSuccessRef.current) return;
+    hasHandledSuccessRef.current = true;
     onOrderCreated();
     const closeTimer = window.setTimeout(onClose, 1800);
     return () => window.clearTimeout(closeTimer);

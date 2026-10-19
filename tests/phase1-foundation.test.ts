@@ -1,7 +1,7 @@
-import { describe, it, before, after } from "node:test";
-import assert from "node:assert/strict";
 import { PrismaClient, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import assert from "node:assert/strict";
+import { after, before, describe, it } from "node:test";
 
 const prisma = new PrismaClient();
 
@@ -18,7 +18,7 @@ describe("Phase 1: Foundation, Database & Seed Verification", () => {
     const orderCount = await prisma.order.count();
     assert.ok(
       orderCount >= 50000,
-      `Expected at least 50,000 orders, but found ${orderCount}`
+      `Expected at least 50,000 orders, but found ${orderCount}`,
     );
   });
 
@@ -36,7 +36,7 @@ describe("Phase 1: Foundation, Database & Seed Verification", () => {
     assert.strictEqual(
       violationCount,
       0,
-      `Expected 0 orders with invalid line item counts, found ${violationCount}`
+      `Expected 0 orders with invalid line item counts, found ${violationCount}`,
     );
   });
 
@@ -48,7 +48,7 @@ describe("Phase 1: Foundation, Database & Seed Verification", () => {
     assert.strictEqual(admin?.role, Role.ADMIN);
     assert.ok(
       bcrypt.compareSync("AdminPassword123!", admin.passwordHash),
-      "Admin password hash must verify against AdminPassword123!"
+      "Admin password hash must verify against AdminPassword123!",
     );
 
     const agent = await prisma.user.findUnique({
@@ -58,7 +58,7 @@ describe("Phase 1: Foundation, Database & Seed Verification", () => {
     assert.strictEqual(agent?.role, Role.AGENT);
     assert.ok(
       bcrypt.compareSync("AgentPassword123!", agent.passwordHash),
-      "Agent password hash must verify against AgentPassword123!"
+      "Agent password hash must verify against AgentPassword123!",
     );
   });
 
@@ -72,12 +72,12 @@ describe("Phase 1: Foundation, Database & Seed Verification", () => {
 
     const calculatedSum = sample.items.reduce(
       (sum, item) => sum + item.quantity * Number(item.unitPrice),
-      0
+      0,
     );
     assert.strictEqual(
       Number(sample.totalAmount).toFixed(2),
       calculatedSum.toFixed(2),
-      "Order totalAmount must match sum of item quantities * unit prices"
+      "Order totalAmount must match sum of item quantities * unit prices",
     );
   });
 
@@ -88,10 +88,25 @@ describe("Phase 1: Foundation, Database & Seed Verification", () => {
       WHERE tablename = 'orders';
     `;
     const indexNames = indexRecords.map((r) => r.indexname);
-    assert.ok(indexNames.includes("orders_createdAt_id_idx"), "orders_createdAt_id_idx must exist");
-    assert.ok(indexNames.includes("orders_status_createdAt_id_idx"), "orders_status_createdAt_id_idx must exist");
-    assert.ok(indexNames.includes("orders_totalAmount_id_idx"), "orders_totalAmount_id_idx must exist");
-    assert.ok(indexNames.includes("orders_customerName_idx"), "orders_customerName_idx must exist");
-    assert.ok(indexNames.includes("orders_customerEmail_idx"), "orders_customerEmail_idx must exist");
+    assert.ok(
+      indexNames.includes("orders_createdAt_id_idx"),
+      "orders_createdAt_id_idx must exist",
+    );
+    assert.ok(
+      indexNames.includes("orders_status_createdAt_id_idx"),
+      "orders_status_createdAt_id_idx must exist",
+    );
+    assert.ok(
+      indexNames.includes("orders_totalAmount_id_idx"),
+      "orders_totalAmount_id_idx must exist",
+    );
+    assert.ok(
+      indexNames.includes("orders_customerName_idx"),
+      "orders_customerName_idx must exist",
+    );
+    assert.ok(
+      indexNames.includes("orders_customerEmail_idx"),
+      "orders_customerEmail_idx must exist",
+    );
   });
 });

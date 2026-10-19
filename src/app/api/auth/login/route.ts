@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/features/auth/lib/auth.validation";
 import { signToken } from "@/features/auth/lib/auth.server";
+import { loginSchema } from "@/features/auth/lib/auth.validation";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
           error: "Invalid login data",
           details: parsed.error.flatten().fieldErrors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or password" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: "Invalid email or password" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         token,
         user: authUser,
       },
-      { status: 200 }
+      { status: 200 },
     );
 
     // Set secure HttpOnly cookie for web client
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     console.error("POST /api/auth/login error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
