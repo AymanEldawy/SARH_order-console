@@ -28,13 +28,10 @@ This document outlines the three primary engineering decisions made during the i
 
 ---
 
-## AI-Tool Usage Disclosure
+## AI Tool Usage Disclosure
 
-In compliance with the brief's transparency requirements:
+I used AI tools to accelerate development, explore implementation approaches, and generate initial code suggestions.
 
-- **What AI Assisted With**: Generating repetitive boilerplate (such as realistic synthetic seed dictionaries, TypeScript interfaces, and initial test scaffoldings) and accelerating code typing.
-- **What Was Verified Personally**:
-  - Ran actual terminal benchmarks using `EXPLAIN ANALYZE` on PostgreSQL 16 to measure execution costs and verify backward index scans.
-  - Validated the concurrent race condition logic against PostgreSQL constraint violations (`P2002`) by firing true parallel requests with `Promise.all`.
-  - Personally verified the dual-defense stale-response mechanism (`AbortController` + `latestRequestIdRef`) through live browser interactions and network throttling.
-  - Executed all 25 automated unit/integration tests and verified that zero fake data, mocked successes, or unverified claims exist in this repository.
+I reviewed the resulting implementation against the project requirements and focused on understanding the reasoning behind key decisions, including duplicate-order prevention, request validation, authentication, and asynchronous UI behavior.
+
+I distinguish between implemented features and behavior that has been verified through testing. Any performance benchmarks or concurrency-test results will be documented only after the corresponding tests have been run and their outcomes reviewed.
