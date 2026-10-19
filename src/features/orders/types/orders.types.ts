@@ -37,3 +37,40 @@ export interface CreatedOrder {
 export interface CreateOrderResponse {
   data: CreatedOrder;
 }
+
+export interface OrderListItem {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  status: OrderStatus;
+  totalAmount: number;
+  createdAt: string;
+  itemCount: number;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface OrdersApiResponse {
+  data: OrderListItem[];
+  pagination: PaginationMeta;
+}
+
+export type OrderFilter = "ALL" | OrderStatus;
+export type OrderSortField = "createdAt" | "totalAmount";
+export type OrderSortOrder = "asc" | "desc";
+
+export interface OrdersListQuery {
+  page: number;
+  search: string;
+  status: OrderFilter;
+  sortBy: OrderSortField;
+  sortOrder: OrderSortOrder;
+  simulateDelay: boolean;
+}

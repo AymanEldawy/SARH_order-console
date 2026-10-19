@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import type { AuthenticatedUser } from "@/features/auth/types/auth.types";
-import { OrdersTable } from "@/components/OrdersTable";
+import { OrdersTable } from "@/features/orders/components/OrdersTable";
 import { CreateOrderModal } from "@/features/orders/components/CreateOrderModal";
 
 export default function HomePage() {

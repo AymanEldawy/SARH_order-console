@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { ordersQuerySchema, createOrderSchema } from "@/lib/validations/orders";
-import { requireAuth } from "@/lib/auth";
+import { ordersQuerySchema, createOrderSchema } from "@/features/orders/lib/orders.validation";
+import { requireAuth } from "@/features/auth/lib/auth.server";
 import { Prisma, OrderStatus } from "@prisma/client";
 import crypto from "crypto";
 

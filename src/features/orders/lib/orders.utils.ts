@@ -5,9 +5,15 @@ export function roundCurrency(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-export function calculateOrderTotal(items: ReadonlyArray<Pick<OrderFormItem, "quantity" | "unitPrice">>): number {
+export function calculateOrderTotal(
+  items: ReadonlyArray<Pick<OrderFormItem, "quantity" | "unitPrice">>,
+): number {
   return roundCurrency(
-    items.reduce((total, item) => total + Number(item.quantity || 0) * Number(item.unitPrice || 0), 0)
+    items.reduce(
+      (total, item) =>
+        total + Number(item.quantity || 0) * Number(item.unitPrice || 0),
+      0,
+    ),
   );
 }
 

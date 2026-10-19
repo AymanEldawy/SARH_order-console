@@ -3,14 +3,21 @@
 import { useCallback, useRef, useState } from "react";
 import { createOrder, OrdersApiError } from "../lib/orders.api";
 import { createOrderFormSchema } from "../lib/orders.validation";
-import type { CreateOrderFormValues, CreateOrderPayload, CreatedOrder } from "../types/orders.types";
+import type {
+  CreatedOrder,
+  CreateOrderFormValues,
+  CreateOrderPayload,
+} from "../types/orders.types";
 
 export function useCreateOrder() {
   const idempotencyKeyRef = useRef<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [createdOrder, setCreatedOrder] = useState<{ order: CreatedOrder; replayed: boolean } | null>(null);
+  const [createdOrder, setCreatedOrder] = useState<{
+    order: CreatedOrder;
+    replayed: boolean;
+  } | null>(null);
 
   const startNewOrder = useCallback(() => {
     const newKey = crypto.randomUUID();
@@ -24,7 +31,10 @@ export function useCreateOrder() {
   const submit = useCallback(async (values: CreateOrderFormValues) => {
     const parsed = createOrderFormSchema.safeParse(values);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Please correct the highlighted order details.");
+      setError(
+        parsed.error.issues[0]?.message ??
+          "Please correct the highlighted order details.",
+      );
       return null;
     }
 
@@ -39,7 +49,11 @@ export function useCreateOrder() {
     const payload: CreateOrderPayload = {
       customerName: parsed.data.customerName,
       customerEmail: parsed.data.customerEmail,
-      items: parsed.data.items.map(({ itemName, quantity, unitPrice }) => ({ itemName, quantity, unitPrice })),
+      items: parsed.data.items.map(({ itemName, quantity, unitPrice }) => ({
+        itemName,
+        quantity,
+        unitPrice,
+      })),
     };
 
     try {
@@ -47,12 +61,23 @@ export function useCreateOrder() {
       setCreatedOrder({ order: result.order.data, replayed: result.replayed });
       return result.order.data;
     } catch (submissionError) {
-      setError(submissionError instanceof OrdersApiError ? submissionError.message : "Failed to create order");
+      setError(
+        submissionError instanceof OrdersApiError
+          ? submissionError.message
+          : "Failed to create order",
+      );
       return null;
     } finally {
       setIsSubmitting(false);
     }
   }, []);
 
-  return { idempotencyKey, isSubmitting, error, createdOrder, startNewOrder, submit };
+  return {
+    idempotencyKey,
+    isSubmitting,
+    error,
+    createdOrder,
+    startNewOrder,
+    submit,
+  };
 }

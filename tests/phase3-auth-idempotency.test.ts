@@ -7,7 +7,7 @@ import { POST as logoutHandler } from "../src/app/api/auth/logout/route";
 import { POST as createOrderHandler } from "../src/app/api/orders/route";
 import { DELETE as deleteOrderHandler } from "../src/app/api/orders/[id]/route";
 import { prisma } from "../src/lib/prisma";
-import { signToken, verifyToken } from "../src/lib/auth";
+import { signToken, verifyToken } from "../src/features/auth/lib/auth.server";
 import { OrderStatus, Role } from "@prisma/client";
 import crypto from "crypto";
 

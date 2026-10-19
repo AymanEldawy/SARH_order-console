@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 import { GET } from "../src/app/api/orders/route";
 import { prisma } from "../src/lib/prisma";
 import { OrderStatus, Role } from "@prisma/client";
-import { signToken } from "../src/lib/auth";
+import { signToken } from "../src/features/auth/lib/auth.server";
 
 const testToken = signToken({
   id: "test-agent-id",
