@@ -65,7 +65,7 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     assert.strictEqual(body.error, "Invalid email or password");
   });
 
-  it("should authenticate admin user, return JWT, set HttpOnly cookie, and omit password hash", async () => {
+  it("should authenticate admin user, set an HttpOnly cookie, and omit password hash", async () => {
     const req = createJsonRequest("/api/auth/login", {
       email: "admin@sarh.dev",
       password: "AdminPassword123!",
@@ -74,7 +74,11 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     assert.strictEqual(res.status, 200);
 
     const body = await res.json();
-    assert.ok(body.token, "JWT token must be returned");
+    assert.strictEqual(
+      body.token,
+      undefined,
+      "JWT must not be exposed in the JSON response",
+    );
     assert.strictEqual(body.user.email, "admin@sarh.dev");
     assert.strictEqual(body.user.role, Role.ADMIN);
     assert.strictEqual(

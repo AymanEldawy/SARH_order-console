@@ -20,9 +20,9 @@ This document outlines the three primary engineering decisions made during the i
 
 ---
 
-### Decision 3: Dual-Mode Token Transport with HttpOnly Cookies
+### Decision 3: HttpOnly Cookie Session with Optional Bearer Verification
 
-- **The Decision**: Store the authenticated JWT session in an `HttpOnly`, `SameSite=Lax`, `Secure` cookie for browser interactions, while concurrently accepting the `Authorization: Bearer <token>` header for headless API requests and automated integration tests.
+- **The Decision**: Store the authenticated browser JWT session only in an `HttpOnly`, `SameSite=Lax`, `Secure` cookie and do not return it in the login JSON. The server can still verify a standard `Authorization: Bearer <token>` header for explicitly provisioned programmatic clients and integration tests.
 - **Alternative Considered**: Storing JWT tokens exclusively in browser `localStorage`.
 - **Why Rejected**: Any data saved in `localStorage` is accessible to client-side JavaScript, exposing session credentials to immediate exfiltration if any third-party script, analytics tag, or UI dependency is compromised by an XSS vulnerability. `HttpOnly` cookies isolate the token from the DOM, and `SameSite=Lax` shields standard cross-site mutation requests from CSRF.
 
@@ -31,8 +31,9 @@ This document outlines the three primary engineering decisions made during the i
 ## AI-Tool Usage Disclosure
 
 In compliance with the brief's transparency requirements:
+
 - **What AI Assisted With**: Generating repetitive boilerplate (such as realistic synthetic seed dictionaries, TypeScript interfaces, and initial test scaffoldings) and accelerating code typing.
-- **What Was Verified Personally**: 
+- **What Was Verified Personally**:
   - Ran actual terminal benchmarks using `EXPLAIN ANALYZE` on PostgreSQL 16 to measure execution costs and verify backward index scans.
   - Validated the concurrent race condition logic against PostgreSQL constraint violations (`P2002`) by firing true parallel requests with `Promise.all`.
   - Personally verified the dual-defense stale-response mechanism (`AbortController` + `latestRequestIdRef`) through live browser interactions and network throttling.

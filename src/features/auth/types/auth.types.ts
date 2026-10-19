@@ -12,6 +12,5 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponse {
-  token: string;
   user: AuthenticatedUser;
 }

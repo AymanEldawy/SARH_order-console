@@ -50,8 +50,6 @@ function isLoginResponse(value: unknown): value is LoginResponse {
   return (
     typeof value === "object" &&
     value !== null &&
-    "token" in value &&
-    typeof value.token === "string" &&
     "user" in value &&
     typeof value.user === "object" &&
     value.user !== null &&

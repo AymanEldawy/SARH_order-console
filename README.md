@@ -94,7 +94,7 @@ Built for the **SARH Business Solutions — Full Stack Developer (React) Technic
 | `npm run start`      | Runs Next.js production server                                    |
 | `npm run lint`       | Runs `oxlint` (0 warnings, ~20ms execution)                       |
 | `npm run typecheck`  | Runs `tsc --noEmit` type checking                                 |
-| `npm test`           | Runs the full automated test suite (25 tests covering all phases) |
+| `npm test`           | Runs the full automated test suite (32 tests covering all phases) |
 | `npm run db:migrate` | Runs Prisma development migrations                                |
 | `npm run db:deploy`  | Applies pending Prisma migrations in production                   |
 | `npm run db:seed`    | Runs repeatable seed script (50,000 orders + 150,000 items)       |
@@ -124,7 +124,7 @@ _Note: The login screen contains 1-click "Fill Admin User" and "Fill Agent User"
 
 ### 1. `POST /api/auth/login`
 
-Authenticates user, verifies password with bcrypt, sets `HttpOnly` cookie, and returns JWT.
+Authenticates the user, verifies the password with bcrypt, and sets an `HttpOnly` session cookie. The JWT is not returned in the JSON response.
 
 **Request:**
 
@@ -138,7 +138,6 @@ curl -X POST http://localhost:3000/api/auth/login \
 
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "e2a2df25-3ba5-4f35-9610-d021c21e6be1",
     "email": "agent@sarh.dev",
@@ -280,7 +279,7 @@ Reviewing the supplied contractor middleware:
 ## 8. Client Token Storage & Attack Mitigation
 
 > **Where is the token stored and what does this choice protect against?**
-> The token is stored in an **`HttpOnly` cookie** (`SameSite=Lax`, `Secure` in production), while the API also supports the `Authorization: Bearer` header for programmatic clients. The `HttpOnly` flag completely prevents malicious JavaScript from reading the token via Cross-Site Scripting (XSS theft), and `SameSite=Lax` mitigates unauthorized cross-origin request forgeries (CSRF). However, this choice **does not** prevent arbitrary actions if an attacker already achieves script execution on the origin (XSS can still instruct the browser to make legitimate requests), nor does any single client storage mechanism eliminate all web application vulnerabilities.
+> The browser session token is stored only in an **`HttpOnly` cookie** (`SameSite=Lax`, `Secure` in production); the login response does not expose it to JavaScript. `HttpOnly` reduces token exfiltration through XSS, and `SameSite=Lax` mitigates many cross-site form/fetch CSRF attacks, but it does not stop an XSS payload from issuing same-origin requests or replace a CSRF strategy for more sensitive cross-site scenarios.
 
 ---
 
@@ -321,7 +320,7 @@ npm test -- --test-name-pattern="PARALLEL DUPLICATE PROOF"
 4. Click **`PENDING`**, then **`PROCESSING`**, then **`COMPLETED`** in rapid succession (< 500ms).
 5. Notice that earlier slower requests are aborted via `AbortController`, and the sequence counter discards any out-of-order resolution.
 6. The final rendered table displays **only `COMPLETED` orders**, proving that earlier slower requests never overwrite the latest state.
-7. Proof video recording is available in [`docs/proofs/orders-console-demo.webp`](file:///Users/eldawy/pc/Work/jobs-tasks/SARH_order-console/docs/proofs/orders-console-demo.webp) and screenshots in [`docs/proofs/`](file:///Users/eldawy/pc/Work/jobs-tasks/SARH_order-console/docs/proofs/).
+7. Proof video recording is available in [`docs/proofs/orders-console-demo.webp`](docs/proofs/orders-console-demo.webp) and screenshots in [`docs/proofs/`](docs/proofs/).
 
 ---
 
