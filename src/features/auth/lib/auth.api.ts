@@ -47,17 +47,19 @@ export async function login(
 }
 
 function isLoginResponse(value: unknown): value is LoginResponse {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "user" in value &&
-    typeof value.user === "object" &&
-    value.user !== null &&
-    "id" in value.user &&
-    typeof value.user.id === "string" &&
-    "email" in value.user &&
-    typeof value.user.email === "string" &&
-    "role" in value.user &&
-    (value.user.role === "ADMIN" || value.user.role === "AGENT")
-  );
+  if (typeof value !== "object" || value === null) return false;
+  if (
+    !("user" in value) ||
+    typeof value.user !== "object" ||
+    value.user === null
+  )
+    return false;
+
+  const user = value.user;
+  if (!("id" in user) || typeof user.id !== "string") return false;
+  if (!("email" in user) || typeof user.email !== "string") return false;
+  if (!("role" in user) || (user.role !== "ADMIN" && user.role !== "AGENT"))
+    return false;
+
+  return true;
 }

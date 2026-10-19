@@ -2,9 +2,23 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deleteOrder, getOrders, OrdersApiError } from "../lib/orders.api";
-import type { OrderFilter, OrderListItem, OrdersListQuery, OrderSortField, OrderSortOrder, PaginationMeta } from "../types/orders.types";
+import type {
+  OrderFilter,
+  OrderListItem,
+  OrdersListQuery,
+  OrderSortField,
+  OrderSortOrder,
+  PaginationMeta,
+} from "../types/orders.types";
 
-const emptyPagination: PaginationMeta = { page: 1, limit: 20, total: 0, totalPages: 1, hasNextPage: false, hasPrevPage: false };
+const emptyPagination: PaginationMeta = {
+  page: 1,
+  limit: 20,
+  total: 0,
+  totalPages: 1,
+  hasNextPage: false,
+  hasPrevPage: false,
+};
 
 export function useOrders(refreshTrigger: number) {
   const [search, setSearch] = useState("");
@@ -23,7 +37,10 @@ export function useOrders(refreshTrigger: number) {
   const latestRequestIdRef = useRef(0);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => { setDebouncedSearch(search.trim()); setPage(1); }, 300);
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 300);
     return () => window.clearTimeout(timer);
   }, [search]);
 
@@ -32,7 +49,14 @@ export function useOrders(refreshTrigger: number) {
     const controller = new AbortController();
     abortControllerRef.current = controller;
     const requestId = ++latestRequestIdRef.current;
-    const query: OrdersListQuery = { page, search: debouncedSearch, status, sortBy, sortOrder, simulateDelay };
+    const query: OrdersListQuery = {
+      page,
+      search: debouncedSearch,
+      status,
+      sortBy,
+      sortOrder,
+      simulateDelay,
+    };
     setIsLoading(true);
     setError(null);
     try {
@@ -42,8 +66,17 @@ export function useOrders(refreshTrigger: number) {
       setPagination(response.pagination);
       setActiveFilter(status);
     } catch (requestError) {
-      if (requestError instanceof DOMException && requestError.name === "AbortError") return;
-      if (requestId === latestRequestIdRef.current) setError(requestError instanceof OrdersApiError ? requestError.message : "Network request failed");
+      if (
+        requestError instanceof DOMException &&
+        requestError.name === "AbortError"
+      )
+        return;
+      if (requestId === latestRequestIdRef.current)
+        setError(
+          requestError instanceof OrdersApiError
+            ? requestError.message
+            : "Network request failed",
+        );
     } finally {
       if (requestId === latestRequestIdRef.current) setIsLoading(false);
     }
@@ -54,11 +87,44 @@ export function useOrders(refreshTrigger: number) {
     return () => abortControllerRef.current?.abort();
   }, [reload, refreshTrigger]);
 
-  const changeStatus = (nextStatus: OrderFilter) => { setStatus(nextStatus); setPage(1); };
+  const changeStatus = (nextStatus: OrderFilter) => {
+    setStatus(nextStatus);
+    setPage(1);
+  };
   const removeOrder = async (orderId: string) => {
-    try { await deleteOrder(orderId); await reload(); }
-    catch (requestError) { setError(requestError instanceof OrdersApiError ? requestError.message : "Failed to delete order"); }
+    try {
+      await deleteOrder(orderId);
+      await reload();
+    } catch (requestError) {
+      setError(
+        requestError instanceof OrdersApiError
+          ? requestError.message
+          : "Failed to delete order",
+      );
+    }
   };
 
-  return { search, setSearch, status, changeStatus, sortBy, setSortBy, sortOrder, toggleSortOrder: () => setSortOrder((value) => value === "desc" ? "asc" : "desc"), simulateDelay, setSimulateDelay, page, setPage, orders, pagination, isLoading, error, activeFilter, debouncedSearch, reload, removeOrder };
+  return {
+    search,
+    setSearch,
+    status,
+    changeStatus,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    toggleSortOrder: () =>
+      setSortOrder((value) => (value === "desc" ? "asc" : "desc")),
+    simulateDelay,
+    setSimulateDelay,
+    page,
+    setPage,
+    orders,
+    pagination,
+    isLoading,
+    error,
+    activeFilter,
+    debouncedSearch,
+    reload,
+    removeOrder,
+  };
 }

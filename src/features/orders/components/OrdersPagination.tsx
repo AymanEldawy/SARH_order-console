@@ -15,6 +15,7 @@ export function OrdersPagination({
 }: OrdersPaginationProps) {
   const first = orderCount ? (pagination.page - 1) * pagination.limit + 1 : 0;
   const last = Math.min(pagination.page * pagination.limit, pagination.total);
+
   return (
     <div className="px-4 py-3 bg-slate-50/70 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
       <div>
