@@ -195,7 +195,7 @@ export function OrdersTable({ userRole, refreshTrigger }: OrdersTableProps) {
           <div className="flex items-center gap-2">
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as "createdAt" | "totalAmount")}
               className="px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 bg-white"
             >
               <option value="createdAt">Sort: Created Date</option>

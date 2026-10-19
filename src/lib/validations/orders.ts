@@ -68,7 +68,8 @@ export const createOrderSchema = z.object({
     .trim()
     .toLowerCase()
     .email("Invalid customer email address"),
-  status: z.nativeEnum(OrderStatus).default(OrderStatus.PENDING),
+  // NOTE: `status` is intentionally excluded from the create schema.
+  // New orders always start as PENDING; the server enforces this regardless of client input.
   items: z
     .array(createOrderItemSchema)
     .min(1, "At least 1 line item is required")
@@ -79,6 +80,8 @@ export const createOrderSchema = z.object({
 export type OrdersQueryInput = z.infer<typeof ordersQuerySchema>;
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type CreateOrderItemInput = z.infer<typeof createOrderItemSchema>;
+// Exported alias kept for clarity: status is server-assigned (always PENDING on creation)
+export type CreateOrderStatusPolicy = "server-assigned";
 
 export interface OrderListItem {
   id: string;

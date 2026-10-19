@@ -219,6 +219,44 @@ describe("Phase 3: Authentication, Authorization & Duplicate-Safe Order Creation
     assert.strictEqual(res.status, 400);
   });
 
+  /* ------------------------------------------------------------------ */
+  /*  F7 Security Regression: Client-Controlled Status Prevention        */
+  /* ------------------------------------------------------------------ */
+
+  it("F7: should always create new orders with PENDING status, ignoring any client-supplied status", async () => {
+    const key = `key-status-bypass-${crypto.randomUUID()}`;
+
+    // Attempt to create an order with status=COMPLETED (should be ignored)
+    const req = createJsonRequest(
+      "/api/orders",
+      {
+        customerName: "Status Bypass Test",
+        customerEmail: "status.bypass@example.com",
+        status: "COMPLETED", // client attempting to override
+        items: [{ itemName: "Bypass Item", quantity: 1, unitPrice: 10 }],
+      },
+      {
+        authorization: `Bearer ${agentToken}`,
+        "idempotency-key": key,
+      }
+    );
+
+    const res = await createOrderHandler(req);
+    assert.strictEqual(res.status, 201, "Order creation should succeed");
+    const body = await res.json();
+
+    // Server must have enforced PENDING regardless of client input
+    assert.strictEqual(
+      body.data.status,
+      OrderStatus.PENDING,
+      "Server must always assign PENDING status to new orders, ignoring client-supplied status"
+    );
+
+    // Cleanup
+    await prisma.idempotencyRecord.deleteMany({ where: { key } });
+    await prisma.order.deleteMany({ where: { customerEmail: "status.bypass@example.com" } });
+  });
+
   it("should reject reusing the same idempotency key with a DIFFERENT payload (422 Conflict)", async () => {
     const sharedKey = `key-conflict-${crypto.randomUUID()}`;
 

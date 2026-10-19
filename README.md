@@ -22,6 +22,7 @@ Built for the **SARH Business Solutions — Full Stack Developer (React) Technic
 ## 2. Prerequisites & Local Setup
 
 ### Prerequisites
+
 - **Node.js**: v20+ or v22+ (tested on v25).
 - **PostgreSQL**: v14+ (local instance running on port 5432).
 - **npm**: v10+.
@@ -29,6 +30,7 @@ Built for the **SARH Business Solutions — Full Stack Developer (React) Technic
 ### Setup in Under 5 Minutes
 
 1. **Clone repository and install dependencies**:
+
    ```bash
    git clone <repo-url>
    cd SARH_order-console
@@ -37,12 +39,13 @@ Built for the **SARH Business Solutions — Full Stack Developer (React) Technic
 
 2. **Configure Environment Variables**:
    Copy `.env.example` to `.env`:
+
    ```bash
    cp .env.example .env
    ```
-   *Never commit `.env` to Git. It is already included in `.gitignore`.*
 
 3. **Database Migration & Seeding (50,000+ Orders)**:
+
    ```bash
    # Create database if not created:
    createdb sarh_orders_dev
@@ -53,9 +56,11 @@ Built for the **SARH Business Solutions — Full Stack Developer (React) Technic
    # Seed 50,000 orders (150,000 items) + demo admin & agent:
    npm run db:seed
    ```
-   *Seeding takes ~6 seconds in batch mode.*
+
+   _Seeding takes ~6 seconds in batch mode._
 
 4. **Run the Development or Production Server**:
+
    ```bash
    # Development mode:
    npm run dev
@@ -64,35 +69,36 @@ Built for the **SARH Business Solutions — Full Stack Developer (React) Technic
    npm run build
    npm run start
    ```
+
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
 ## 3. Environment Variables (`.env.example`)
 
-| Variable | Description | Example / Placeholder |
-|---|---|---|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://username:password@localhost:5432/sarh_orders_dev?schema=public` |
-| `JWT_SECRET` | Secret key for signing HS256 tokens (min 32 chars) | `placeholder_jwt_secret_change_in_production_32chars` |
-| `NODE_ENV` | Application environment (`development` or `production`) | `development` |
-| `PORT` | Local HTTP port | `3000` |
+| Variable       | Description                                             | Example / Placeholder                                                         |
+| -------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `DATABASE_URL` | PostgreSQL connection string                            | `postgresql://username:password@localhost:5432/sarh_orders_dev?schema=public` |
+| `JWT_SECRET`   | Secret key for signing HS256 tokens (min 32 chars)      | `placeholder_jwt_secret_change_in_production_32chars`                         |
+| `NODE_ENV`     | Application environment (`development` or `production`) | `development`                                                                 |
+| `PORT`         | Local HTTP port                                         | `3000`                                                                        |
 
 ---
 
 ## 4. Available Commands
 
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Starts Next.js development server with hot reload |
-| `npm run build` | Builds optimized production bundle |
-| `npm run start` | Runs Next.js production server |
-| `npm run lint` | Runs `oxlint` (0 warnings, ~20ms execution) |
-| `npm run typecheck` | Runs `tsc --noEmit` type checking |
-| `npm test` | Runs the full automated test suite (25 tests covering all phases) |
-| `npm run db:migrate` | Runs Prisma development migrations |
-| `npm run db:deploy` | Applies pending Prisma migrations in production |
-| `npm run db:seed` | Runs repeatable seed script (50,000 orders + 150,000 items) |
-| `npm run db:studio` | Opens Prisma Studio web inspector |
+| Command              | Purpose                                                           |
+| -------------------- | ----------------------------------------------------------------- |
+| `npm run dev`        | Starts Next.js development server with hot reload                 |
+| `npm run build`      | Builds optimized production bundle                                |
+| `npm run start`      | Runs Next.js production server                                    |
+| `npm run lint`       | Runs `oxlint` (0 warnings, ~20ms execution)                       |
+| `npm run typecheck`  | Runs `tsc --noEmit` type checking                                 |
+| `npm test`           | Runs the full automated test suite (25 tests covering all phases) |
+| `npm run db:migrate` | Runs Prisma development migrations                                |
+| `npm run db:deploy`  | Applies pending Prisma migrations in production                   |
+| `npm run db:seed`    | Runs repeatable seed script (50,000 orders + 150,000 items)       |
+| `npm run db:studio`  | Opens Prisma Studio web inspector                                 |
 
 ---
 
@@ -110,16 +116,18 @@ The seed script creates two deterministic accounts with salted bcrypt password h
   - Password: `AgentPassword123!`
   - Role: `AGENT` (Can view, search, filter, and create orders)
 
-*Note: The login screen contains 1-click "Fill Admin User" and "Fill Agent User" buttons for reviewer convenience.*
+_Note: The login screen contains 1-click "Fill Admin User" and "Fill Agent User" buttons for reviewer convenience._
 
 ---
 
 ## 6. API Endpoints & Examples
 
 ### 1. `POST /api/auth/login`
+
 Authenticates user, verifies password with bcrypt, sets `HttpOnly` cookie, and returns JWT.
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
@@ -127,6 +135,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -141,15 +150,18 @@ curl -X POST http://localhost:3000/api/auth/login \
 ---
 
 ### 2. `GET /api/orders`
+
 Protected endpoint with server-side pagination, sorting, status filter, and search over 50,000 records.
 
 **Request:**
+
 ```bash
 curl -X GET "http://localhost:3000/api/orders?status=PENDING&sortBy=totalAmount&sortOrder=desc&page=1&limit=20" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "data": [
@@ -158,7 +170,7 @@ curl -X GET "http://localhost:3000/api/orders?status=PENDING&sortBy=totalAmount&
       "customerName": "Ahmed Al-Harbi",
       "customerEmail": "ahmed.alharbi1@example.com",
       "status": "PENDING",
-      "totalAmount": 1248.50,
+      "totalAmount": 1248.5,
       "createdAt": "2026-09-12T10:15:30.000Z",
       "itemCount": 4
     }
@@ -177,9 +189,11 @@ curl -X GET "http://localhost:3000/api/orders?status=PENDING&sortBy=totalAmount&
 ---
 
 ### 3. `POST /api/orders` (Duplicate-Safe Create)
+
 Creates an order with 1–5 line items and server-enforced duplicate prevention via PostgreSQL unique constraints.
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/api/orders \
   -H "Authorization: Bearer <TOKEN>" \
@@ -197,6 +211,7 @@ curl -X POST http://localhost:3000/api/orders \
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "data": {
@@ -207,17 +222,29 @@ curl -X POST http://localhost:3000/api/orders \
     "totalAmount": 309.97,
     "createdAt": "2026-10-18T12:00:00.000Z",
     "items": [
-      { "id": "...", "itemName": "Ergonomic Chair", "quantity": 1, "unitPrice": 249.99 },
-      { "id": "...", "itemName": "Laptop Stand", "quantity": 2, "unitPrice": 29.99 }
+      {
+        "id": "...",
+        "itemName": "Ergonomic Chair",
+        "quantity": 1,
+        "unitPrice": 249.99
+      },
+      {
+        "id": "...",
+        "itemName": "Laptop Stand",
+        "quantity": 2,
+        "unitPrice": 29.99
+      }
     ]
   }
 }
 ```
-*Replaying the request with the same key returns the exact same 201 response with header `X-Idempotency-Replayed: true` without duplicating rows.*
+
+_Replaying the request with the same key returns the exact same 201 response with header `X-Idempotency-Replayed: true` without duplicating rows._
 
 ---
 
 ### 4. `DELETE /api/orders/:id`
+
 Destructive action restricted strictly to `ADMIN` users on the server. Non-admins receive `403 Forbidden`.
 
 ---
@@ -227,26 +254,26 @@ Destructive action restricted strictly to `ADMIN` users on the server. Non-admin
 Reviewing the supplied contractor middleware:
 
 1. **`jwt.decode()` does not verify the signature**:
-   - *Problem*: `jwt.decode()` parses base64 without validating whether the token was signed by the server. Anyone could forge a token with `"role": "ADMIN"`.
-   - *Fix*: Replaced with `jwt.verify(token, secret, { algorithms: ["HS256"] })`.
+   - _Problem_: `jwt.decode()` parses base64 without validating whether the token was signed by the server. Anyone could forge a token with `"role": "ADMIN"`.
+   - _Fix_: Replaced with `jwt.verify(token, secret, { algorithms: ["HS256"] })`.
 2. **Hardcoded secret `"sarh-secret-2026"`**:
-   - *Problem*: Secret was checked in plain text in source code.
-   - *Fix*: Loaded securely from `process.env.JWT_SECRET` with startup assertion verifying minimum 32-character entropy.
+   - _Problem_: Secret was checked in plain text in source code.
+   - _Fix_: Loaded securely from `process.env.JWT_SECRET` with startup assertion verifying minimum 32-character entropy.
 3. **Token accepted in URL query string (`req.query.token`)**:
-   - *Problem*: Query parameters get logged in access logs, proxies, browser history, and leaked via `Referer` headers.
-   - *Fix*: Completely removed query-string token support. Only standard `Authorization: Bearer` and `HttpOnly` cookies are accepted.
+   - _Problem_: Query parameters get logged in access logs, proxies, browser history, and leaked via `Referer` headers.
+   - _Fix_: Completely removed query-string token support. Only standard `Authorization: Bearer` and `HttpOnly` cookies are accepted.
 4. **Missing token expiration (`exp`)**:
-   - *Problem*: Tokens were valid indefinitely.
-   - *Fix*: Tokens are signed with an explicit 8-hour expiry (`expiresIn: "8h"`).
+   - _Problem_: Tokens were valid indefinitely.
+   - _Fix_: Tokens are signed with an explicit 8-hour expiry (`expiresIn: "8h"`).
 5. **Role authorization delegated to React client (`"admin check done in React AdminOnly"`)**:
-   - *Problem*: Any client could bypass React UI and directly call `DELETE /orders/:id`.
-   - *Fix*: Implemented `requireAdmin()` middleware on the server, returning `403 Forbidden` if `user.role !== 'ADMIN'`.
+   - _Problem_: Any client could bypass React UI and directly call `DELETE /orders/:id`.
+   - _Fix_: Implemented `requireAdmin()` middleware on the server, returning `403 Forbidden` if `user.role !== 'ADMIN'`.
 6. **Plain-text password comparison in database query**:
-   - *Problem*: `db.users.findFirst({ email, password })` stored and compared passwords in plain text.
-   - *Fix*: Passwords are saved with bcrypt salted hashes. Login queries by email first, verifies with `bcrypt.compare()`, and returns a generic 401 error to prevent user enumeration.
+   - _Problem_: `db.users.findFirst({ email, password })` stored and compared passwords in plain text.
+   - _Fix_: Passwords are saved with bcrypt salted hashes. Login queries by email first, verifies with `bcrypt.compare()`, and returns a generic 401 error to prevent user enumeration.
 7. **Unvalidated request bodies**:
-   - *Problem*: No schema validation on login or orders routes.
-   - *Fix*: Implemented strict Zod validation schemas for all inputs.
+   - _Problem_: No schema validation on login or orders routes.
+   - _Fix_: Implemented strict Zod validation schemas for all inputs.
 
 ---
 
@@ -259,11 +286,11 @@ Reviewing the supplied contractor middleware:
 
 ## 9. Product Question: "Delete all cancelled orders" Button
 
-> **Question from Operations Lead**: *"Can we add a button to delete all cancelled orders?"*
-> 
+> **Question from Operations Lead**: _"Can we add a button to delete all cancelled orders?"_
+>
 > **What I ask her first (asking 'why' before 'how')**:
-> *"What problem are you solving by removing cancelled orders—is it visual clutter in the table, concerns about database size, or customer data privacy/compliance? Are there finance, reporting, or dispute resolution workflows that still rely on historical cancellation records?"*
-> 
+> _"What problem are you solving by removing cancelled orders—is it visual clutter in the table, concerns about database size, or customer data privacy/compliance? Are there finance, reporting, or dispute resolution workflows that still rely on historical cancellation records?"_
+>
 > **What I propose instead if unanswered**:
 > Rather than irreversible bulk deletion, I propose adding a **default status filter** that hides cancelled orders from daily views, paired with a reversible **Soft-Delete / Archive policy** that moves old cancelled orders to cold storage after a defined audit retention window.
 
@@ -272,17 +299,22 @@ Reviewing the supplied contractor middleware:
 ## 10. Steps to Reproduce Key Requirements
 
 ### A. R2 Concurrent Duplicate-Create Proof
+
 To prove that concurrent create requests cannot produce duplicate orders in PostgreSQL:
+
 ```bash
 npm test -- --test-name-pattern="PARALLEL DUPLICATE PROOF"
 ```
+
 **Outcome**:
+
 - Fires 2 identical requests with the same `Idempotency-Key` at the exact same millisecond via `Promise.all`.
 - PostgreSQL unique constraint catches the race (`P2002`).
 - Both callers receive identical `201 Created` responses with the same order ID.
 - Asserts directly in PostgreSQL that `COUNT(*)` equals **exactly 1**.
 
 ### B. R1 Rapid-Filter Stale-Response Proof
+
 1. Run `npm run start` and open [http://localhost:3000](http://localhost:3000).
 2. Click **"Fill Admin User"** and sign in.
 3. Check the box **"Simulate 800ms Network Delay (Rapid-Filter Test)"**.
@@ -295,7 +327,7 @@ npm test -- --test-name-pattern="PARALLEL DUPLICATE PROOF"
 
 ## 11. What Was Skipped and Why
 
-In strict adherence to the assignment guidelines (*"Doing neither costs nothing; doing one badly costs more than skipping it"* and *"Keep the implementation simple and time-appropriate"*):
+In strict adherence to the assignment guidelines (_"Doing neither costs nothing; doing one badly costs more than skipping it"_ and _"Keep the implementation simple and time-appropriate"_):
 
 - **O1 (Slow Stats API)**: Skipped. The mandatory requirements (50k seed, sub-5ms indexed queries, duplicate prevention proof, rapid filter correctness) were prioritized.
 - **O2 (Optimistic Create)**: Skipped. In high-concurrency order registration where duplicate prevention is the primary business requirement, server confirmation before list insertion ensures complete data consistency without complex rollback states.

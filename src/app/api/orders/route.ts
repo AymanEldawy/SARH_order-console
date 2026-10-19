@@ -160,13 +160,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { customerName, customerEmail, status, items } = parsed.data;
+    const { customerName, customerEmail, items } = parsed.data;
 
     // 3. Compute deterministic hash of the normalized payload
+    // Status is always PENDING for new orders — enforced server-side, not client-controlled.
     const normalizedPayload = {
       customerName,
       customerEmail,
-      status: status || OrderStatus.PENDING,
+      status: OrderStatus.PENDING,
       items: items.map((it) => ({
         itemName: it.itemName,
         quantity: it.quantity,
@@ -260,7 +261,7 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json(createdResult, { status: 201 });
-    } catch (txError: any) {
+    } catch (txError) {
       // 7. Handle concurrent race condition: PostgreSQL Unique Constraint Violation (Prisma P2002)
       if (
         txError instanceof Prisma.PrismaClientKnownRequestError &&
